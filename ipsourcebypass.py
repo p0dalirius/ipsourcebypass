@@ -61,7 +61,13 @@ def print_results(console, results):
             elif result[1]["length"] == max(lengths)[1]:
                 style = "red"
             table.add_row(str(result[1]["length"]), str(result[1]["status_code"]), result[1]["header"], style=style)
-    elif len(lengths) <= 4:
+    elif len(lengths) == 3:
+        scale = ["red", "orange3", "green"]
+        colors = {str(sorted(lengths, reverse=True)[k][1]):scale[k] for k in range(len(lengths))}
+        for result in results.items():
+            style = colors[str(result[1]["length"])]
+            table.add_row(str(result[1]["length"]), str(result[1]["status_code"]), result[1]["header"], style=style)
+    elif len(lengths) == 4:
         scale = ["red", "orange3", "yellow3", "green"]
         colors = {str(sorted(lengths, reverse=True)[k][1]):scale[k] for k in range(len(lengths))}
         for result in results.items():
