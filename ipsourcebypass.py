@@ -43,6 +43,8 @@ def test_bypass(options, proxies, results, header_name, header_value):
     results[header_name] = {"status_code": r.status_code, "length": len(r.text), "header": "%s: %s" % (header_name, header_value)}
 
 def print_results(console, results):
+    valid_headers = []
+
     if options.verbose == True:
         print("[>] Parsing & printing results")
     table = Table(show_header=True, header_style="bold blue", border_style="blue", box=box.SIMPLE)
@@ -58,6 +60,7 @@ def print_results(console, results):
         for result in results.items():
             if result[1]["length"] == min(lengths)[1]:
                 style = "green"
+                valid_headers.append(result[0])
             elif result[1]["length"] == max(lengths)[1]:
                 style = "red"
             table.add_row(str(result[1]["length"]), str(result[1]["status_code"]), result[1]["header"], style=style)
@@ -78,6 +81,7 @@ def print_results(console, results):
             style = "orange3"
             table.add_row(str(result[1]["length"]), str(result[1]["status_code"]), result[1]["header"], style=style)
     console.print(table)
+    return valid_headers
 
 
 def parseArgs():
@@ -99,6 +103,21 @@ def parseArgs():
     parser.add_argument("-j", "--jsonfile", dest="jsonfile", default=None, required=False, help="Save results to specified JSON file.")
     return parser.parse_args()
 
+def chose_header(headers):
+    num = 0
+    for i in range(len(headers)):
+        console.print(" [ [green]"+str(i)+"[/green] ] | [slate_blue1]"+str(headers[i])+"[/slate_blue1]")
+    console.print(" Chose the header you want to use", style="bold blue")
+
+    while True:
+        try:
+            num = int(input(" "))
+            if num > len(headers)-1 or num < 0:
+                console.print(" /!\\Chose a valid option please /!\\", style="orange3")
+            else:
+                return num
+        except ValueError:
+            console.print(" /!\\Give me a number please/!\\", style="orange3")
 
 if __name__ == '__main__':
     print(banner)
@@ -143,7 +162,22 @@ if __name__ == '__main__':
         results = {key: results[key] for key in sorted(results, key=lambda key:results[key]["length"])}
 
         # Parsing and print results
-        print_results(console, results)
+        good_headers = print_results(console, results)
+        if len(good_headers) > 0:
+            num = chose_header(good_headers)
+            r = requests.get(
+                url=options.url,
+                verify=options.verify,  # this is to set the client to accept insecure servers
+                proxies=proxies,
+                allow_redirects=options.redirect,
+                stream=True,  # this is to prevent the download of huge files, focus on the request, not on the data,
+                headers={good_headers[num]: options.ip}
+            )
+            print("\n")
+            console.print("Result:", style="underline bold blue")
+            print(r.text)
+        else:
+            print(" No header to use")
 
         # Export to JSON if specified
         if options.jsonfile is not None:
