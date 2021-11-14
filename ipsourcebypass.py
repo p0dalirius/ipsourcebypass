@@ -173,9 +173,12 @@ if __name__ == '__main__':
                 stream=True,  # this is to prevent the download of huge files, focus on the request, not on the data,
                 headers={good_headers[num]: options.ip}
             )
+
+            html = r.text
+
             print("\n")
             console.print("Result:", style="underline bold blue")
-            print(r.text)
+            print(html)
         else:
             print(" No header to use")
 
