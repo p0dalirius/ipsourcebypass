@@ -9,7 +9,7 @@ This Python script can be used to bypass IP source restrictions using HTTP heade
  - [x] 17 HTTP headers.
  - [x] Multithreading.
  - [x] JSON export with `--json outputfile.json`.
- - [x] Autodetecting most successfull bypasses.
+ - [x] Auto-detecting most successfull bypasses.
 
 ## Usage
 
@@ -38,7 +38,7 @@ optional arguments:
                         Save results to specified JSON file.
 ```
 
-## Autodetecting responses that stands out
+## Auto-detecting responses that stands out
 
 Results are sorted by uniqueness of their response's length. This means that the results with unique response length will be on top, and results with response's length occurring multiple times at the bottom: 
 
