@@ -40,7 +40,7 @@ optional arguments:
 
 ## Autodetecting responses that stands out
 
-Results are sorted by uniqueness of their response's length. This means that the results with unique response length will be on top, and results with response's length occuring multiple times at the bottom: 
+Results are sorted by uniqueness of their response's length. This means that the results with unique response length will be on top, and results with response's length occurring multiple times at the bottom: 
 
 | Two different result lengths | Four different result lengths  |
 |------------------------------|--------------------------------|
