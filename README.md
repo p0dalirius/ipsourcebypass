@@ -38,9 +38,9 @@ optional arguments:
                         Save results to specified JSON file.
 ```
 
-## Autodetecting most probable results
+## Autodetecting responses that stands out
 
-Results are sorted by uncommon length, meaning the results with unique response length will be on top, and lots of results with the same content length, at the bottom: 
+Results are sorted by uniqueness of their response's length. This means that the results with unique response length will be on top, and results with response's length occuring multiple times at the bottom: 
 
 | Two different result lengths | Four different result lengths  |
 |------------------------------|--------------------------------|
