@@ -20,7 +20,7 @@ BYPASS_HEADERS = [
     'Access-Control-Allow-Origin', 'Client-IP', 'Forwarded', 'Forwarded-For', 'Forwarded-For-IP', 'Origin',
     'X-Client-IP', 'X-Custom-IP-Authorization', 'X-Forwarded', 'X-Forwarded-By', 'X-Forwarded-For',
     'X-Forwarded-For-Original', 'X-Forwarded-Host', 'X-Forwarder-For', 'X-Originating-IP', 'X-Remote-Addr',
-    'X-Remote-IP'
+    'X-Remote-IP', "CF-Connecting-Ip", "X-Real-IP", "True-Client-IP"
 ]
 
 
