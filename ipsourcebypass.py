@@ -5,6 +5,7 @@
 # Date created       : 10 Oct 2021
 
 import argparse
+import os
 import sys
 from concurrent.futures import ThreadPoolExecutor
 import requests
@@ -38,21 +39,34 @@ def test_bypass(options, proxies, results, header_name, header_value):
         print("[!] Invalid proxy specified")
         raise SystemExit
     if options.verbose == True:
-        print("[!] Obtained results: [%d] length : %d bytes" %(r.status_code, len(r.content)))
+        print("[!] Obtained results: [%d] length : %d bytes" % (r.status_code, len(r.content)))
+    if options.save == True:
+        if not os.path.exists("./results/"):
+            os.makedirs("./results/", exist_ok=True)
+        f = open("./results/%s.html" % header_name, "wb")
+        f.write(r.content)
+        f.close()
+    results[header_name] = {
+        "status_code": r.status_code,
+        "length": len(r.text),
+        "header": "%s: %s" % (header_name, header_value),
+        "curl": "curl %s\"%s\" -H \"%s: %s\"" % (("-k " if options.verify else ""), options.url, header_name, header_value)
+    }
 
-    results[header_name] = {"status_code": r.status_code, "length": len(r.text), "header": "%s: %s" % (header_name, header_value)}
 
-def print_results(console, results):
+def print_results(console, results, curl=False):
     if options.verbose == True:
         print("[>] Parsing & printing results")
     table = Table(show_header=True, header_style="bold blue", border_style="blue", box=box.SIMPLE)
     table.add_column("Length")
     table.add_column("Status code")
     table.add_column("Header")
+    if curl == True:
+        table.add_column("curl")
 
     # Choose colors for uncommon lengths
     lengths = [result[1]["length"] for result in results.items()]
-    lengths = [(len([1 for result in results.items() if result[1]["length"]==l]), l) for l in list(set(lengths))]
+    lengths = [(len([1 for result in results.items() if result[1]["length"] == l]), l) for l in list(set(lengths))]
 
     if len(lengths) == 2:
         for result in results.items():
@@ -60,23 +74,35 @@ def print_results(console, results):
                 style = "green"
             elif result[1]["length"] == max(lengths)[1]:
                 style = "red"
-            table.add_row(str(result[1]["length"]), str(result[1]["status_code"]), result[1]["header"], style=style)
+            if curl == True:
+                table.add_row(str(result[1]["length"]), str(result[1]["status_code"]), result[1]["header"], result[1]["curl"], style=style)
+            else:
+                table.add_row(str(result[1]["length"]), str(result[1]["status_code"]), result[1]["header"], style=style)
     elif len(lengths) == 3:
         scale = ["red", "orange3", "green"]
-        colors = {str(sorted(lengths, reverse=True)[k][1]):scale[k] for k in range(len(lengths))}
+        colors = {str(sorted(lengths, reverse=True)[k][1]): scale[k] for k in range(len(lengths))}
         for result in results.items():
             style = colors[str(result[1]["length"])]
-            table.add_row(str(result[1]["length"]), str(result[1]["status_code"]), result[1]["header"], style=style)
+            if curl == True:
+                table.add_row(str(result[1]["length"]), str(result[1]["status_code"]), result[1]["header"], result[1]["curl"], style=style)
+            else:
+                table.add_row(str(result[1]["length"]), str(result[1]["status_code"]), result[1]["header"], style=style)
     elif len(lengths) == 4:
         scale = ["red", "orange3", "yellow3", "green"]
-        colors = {str(sorted(lengths, reverse=True)[k][1]):scale[k] for k in range(len(lengths))}
+        colors = {str(sorted(lengths, reverse=True)[k][1]): scale[k] for k in range(len(lengths))}
         for result in results.items():
             style = colors[str(result[1]["length"])]
-            table.add_row(str(result[1]["length"]), str(result[1]["status_code"]), result[1]["header"], style=style)
+            if curl == True:
+                table.add_row(str(result[1]["length"]), str(result[1]["status_code"]), result[1]["header"], result[1]["curl"], style=style)
+            else:
+                table.add_row(str(result[1]["length"]), str(result[1]["status_code"]), result[1]["header"], style=style)
     else:
         for result in results.items():
             style = "orange3"
-            table.add_row(str(result[1]["length"]), str(result[1]["status_code"]), result[1]["header"], style=style)
+            if curl == True:
+                table.add_row(str(result[1]["length"]), str(result[1]["status_code"]), result[1]["header"], result[1]["curl"], style=style)
+            else:
+                table.add_row(str(result[1]["length"]), str(result[1]["status_code"]), result[1]["header"], style=style)
     console.print(table)
 
 
@@ -97,6 +123,8 @@ def parseArgs():
     parser.add_argument("-k", "--insecure", dest="verify", action="store_false", default=True, required=False, help="Allow insecure server connections when using SSL (default: False)")
     parser.add_argument("-L", "--location", dest="redirect", action="store_true", default=False, required=False, help="Follow redirects (default: False)")
     parser.add_argument("-j", "--jsonfile", dest="jsonfile", default=None, required=False, help="Save results to specified JSON file.")
+    parser.add_argument("-C", "--curl", dest="curl", default=False, required=False, action="store_true", help="Generate curl commands for each request.")
+    parser.add_argument("-S", "--save", dest="save", default=False, required=False, action="store_true", help="Save all HTML responses.")
     return parser.parse_args()
 
 
@@ -134,16 +162,17 @@ if __name__ == '__main__':
                 pass
 
         results = {}
+        test_bypass(options, proxies, results, "bph", options.ip)
         # Waits for all the threads to be completed
         with ThreadPoolExecutor(max_workers=min(options.threads, len(BYPASS_HEADERS))) as tp:
             for bph in BYPASS_HEADERS:
                 tp.submit(test_bypass, options, proxies, results, bph, options.ip)
 
         # Sorting the results by method name
-        results = {key: results[key] for key in sorted(results, key=lambda key:results[key]["length"])}
+        results = {key: results[key] for key in sorted(results, key=lambda key: results[key]["length"])}
 
         # Parsing and print results
-        print_results(console, results)
+        print_results(console, results, curl=options.curl)
 
         # Export to JSON if specified
         if options.jsonfile is not None:
