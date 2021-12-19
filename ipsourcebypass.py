@@ -50,7 +50,7 @@ def test_bypass(options, proxies, results, header_name, header_value):
         "status_code": r.status_code,
         "length": len(r.text),
         "header": "%s: %s" % (header_name, header_value),
-        "curl": "curl %s\"%s\" -H \"%s: %s\"" % (("-k " if options.verify else ""), options.url, header_name, header_value)
+        "curl": "curl %s\"%s\" -H \"%s: %s\"" % (("-k " if not options.verify else ""), options.url, header_name, header_value)
     }
 
 
