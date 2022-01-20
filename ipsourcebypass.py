@@ -38,9 +38,9 @@ def test_bypass(options, proxies, results, header_name, header_value):
     except requests.exceptions.ProxyError:
         print("[!] Invalid proxy specified")
         raise SystemExit
-    if options.verbose == True:
+    if options.verbose:
         print("[!] Obtained results: [%d] length : %d bytes" % (r.status_code, len(r.content)))
-    if options.save == True:
+    if options.save:
         if not os.path.exists("./results/"):
             os.makedirs("./results/", exist_ok=True)
         f = open("./results/%s.html" % header_name, "wb")
@@ -55,13 +55,13 @@ def test_bypass(options, proxies, results, header_name, header_value):
 
 
 def print_results(console, results, curl=False):
-    if options.verbose == True:
+    if options.verbose:
         print("[>] Parsing & printing results")
     table = Table(show_header=True, header_style="bold blue", border_style="blue", box=box.SIMPLE)
     table.add_column("Length")
     table.add_column("Status code")
     table.add_column("Header")
-    if curl == True:
+    if curl:
         table.add_column("curl")
 
     # Choose colors for uncommon lengths
@@ -124,6 +124,7 @@ def parseArgs():
     parser.add_argument("-L", "--location", dest="redirect", action="store_true", default=False, required=False, help="Follow redirects (default: False)")
     parser.add_argument("-j", "--jsonfile", dest="jsonfile", default=None, required=False, help="Save results to specified JSON file.")
     parser.add_argument("-C", "--curl", dest="curl", default=False, required=False, action="store_true", help="Generate curl commands for each request.")
+    parser.add_argument("-H", "--header", dest="header", default=None, required=False, type=str, help="Only test this header.")
     parser.add_argument("-S", "--save", dest="save", default=False, required=False, action="store_true", help="Save all HTML responses.")
     return parser.parse_args()
 
@@ -141,15 +142,20 @@ if __name__ == '__main__':
                     "http": "http://" + options.proxy.split('//')[1],
                     "https": "http://" + options.proxy.split('//')[1]
                 }
-                if options.verbose == True:
+                if options.verbose:
                     print("[debug] Setting proxies to %s" % str(proxies))
             except (IndexError, ValueError):
                 print("[!] Invalid proxy specified.")
                 sys.exit(1)
         else:
-            if options.verbose == True:
+            if options.verbose:
                 print("[debug] Setting proxies to 'None'")
             proxies = None
+
+        if options.header is not None:
+            if options.verbose:
+                print("[debug] Only testing header '%s'" % options.header)
+            BYPASS_HEADERS = [options.header]
 
         if not options.verify:
             # Disable warings of insecure connection for invalid cerificates
