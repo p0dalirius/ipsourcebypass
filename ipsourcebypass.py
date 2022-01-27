@@ -13,9 +13,8 @@ from rich.console import Console
 from rich import box
 from rich.table import Table
 import json
-from http.cookies import SimpleCookie
 
-banner = "[~] IP source bypass using HTTP headers, v1.1\n"
+banner = "[~] IP source bypass using HTTP headers, v1.2\n"
 
 BYPASS_HEADERS = [
     'Access-Control-Allow-Origin', 'Client-IP', 'Forwarded', 'Forwarded-For', 'Forwarded-For-IP', 'Origin',
@@ -26,14 +25,18 @@ BYPASS_HEADERS = [
 
 
 def test_bypass(options, proxies, results, header_name, header_value):
+    http_headers = {h.split(':', 1)[0]: h.split(':', 1)[1].strip() for h in options.headers}
+    http_headers[header_name] = header_value
     try:
         r = requests.get(
             url=options.url,
-            verify=options.verify,  # this is to set the client to accept insecure servers
+            # This is to set the client to accept insecure servers
+            verify=options.verify,
             proxies=proxies,
             allow_redirects=options.redirect,
-            stream=True,  # this is to prevent the download of huge files, focus on the request, not on the data,
-            headers={header_name: header_value}
+            # This is to prevent the download of huge files, focus on the request, not on the data
+            stream=True,
+            headers=http_headers
         )
     except requests.exceptions.ProxyError:
         print("[!] Invalid proxy specified")
@@ -124,7 +127,7 @@ def parseArgs():
     parser.add_argument("-L", "--location", dest="redirect", action="store_true", default=False, required=False, help="Follow redirects (default: False)")
     parser.add_argument("-j", "--jsonfile", dest="jsonfile", default=None, required=False, help="Save results to specified JSON file.")
     parser.add_argument("-C", "--curl", dest="curl", default=False, required=False, action="store_true", help="Generate curl commands for each request.")
-    parser.add_argument("-H", "--header", dest="header", default=None, required=False, type=str, help="Only test this header.")
+    parser.add_argument("-H", "--header", dest="headers", action="append", default=[], help='arg1 help message')
     parser.add_argument("-S", "--save", dest="save", default=False, required=False, action="store_true", help="Save all HTML responses.")
     return parser.parse_args()
 
@@ -151,11 +154,6 @@ if __name__ == '__main__':
             if options.verbose:
                 print("[debug] Setting proxies to 'None'")
             proxies = None
-
-        if options.header is not None:
-            if options.verbose:
-                print("[debug] Only testing header '%s'" % options.header)
-            BYPASS_HEADERS = [options.header]
 
         if not options.verify:
             # Disable warings of insecure connection for invalid cerificates

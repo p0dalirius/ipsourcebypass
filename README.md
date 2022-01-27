@@ -21,9 +21,9 @@ This Python script can be used to bypass IP source restrictions using HTTP heade
 
 ```
 $ ./ipsourcebypass.py -h
-[~] IP source bypass using HTTP headers, v1.1
+[~] IP source bypass using HTTP headers, v1.2
 
-usage: ipsourcebypass.py [-h] [-v] -i IP [-t THREADS] [-x PROXY] [-k] [-L] [-j JSONFILE] url
+usage: ipsourcebypass.py [-h] [-v] -i IP [-t THREADS] [-x PROXY] [-k] [-L] [-j JSONFILE] [-C] [-H HEADERS] [-S] url
 
 This Python script can be used to test for IP source bypass using HTTP headers
 
@@ -42,6 +42,10 @@ optional arguments:
   -L, --location        Follow redirects (default: False)
   -j JSONFILE, --jsonfile JSONFILE
                         Save results to specified JSON file.
+  -C, --curl            Generate curl commands for each request.
+  -H HEADERS, --header HEADERS
+                        arg1 help message
+  -S, --save            Save all HTML responses.
 ```
 
 ## Auto-detecting responses that stands out
