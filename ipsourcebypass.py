@@ -156,7 +156,7 @@ if __name__ == '__main__':
             proxies = None
 
         if not options.verify:
-            # Disable warings of insecure connection for invalid cerificates
+            # Disable warings of insecure connection for invalid certificates
             requests.packages.urllib3.disable_warnings()
             # Allow use of deprecated and weak cipher methods
             requests.packages.urllib3.util.ssl_.DEFAULT_CIPHERS += ':HIGH:!DH:!aNULL'
