@@ -15,7 +15,7 @@ This Python script can be used to bypass IP source restrictions using HTTP heade
  - [x] 17 HTTP headers.
  - [x] Multithreading.
  - [x] JSON export with `--json outputfile.json`.
- - [x] Auto-detecting most successfull bypasses.
+ - [x] Auto-detecting most successful bypasses.
 
 ## Usage
 
