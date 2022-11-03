@@ -14,13 +14,104 @@ from rich import box
 from rich.table import Table
 import json
 
-banner = "[~] IP source bypass using HTTP headers, v1.2\n"
+VERSION = "1.3"
 
 BYPASS_HEADERS = [
-    'Access-Control-Allow-Origin', 'Client-IP', 'Forwarded', 'Forwarded-For', 'Forwarded-For-IP', 'Origin',
-    'X-Client-IP', 'X-Forwarded', 'X-Forwarded-By', 'X-Forwarded-For',
-    'X-Forwarded-For-Original', 'X-Forwarded-Host', 'X-Forwarder-For', 'X-Originating-IP', 'X-Remote-Addr',
-    'X-Remote-IP', "CF-Connecting-Ip", "X-Real-IP", "True-Client-IP"
+    {
+        "header": "Access-Control-Allow-Origin",
+        "description": "The Access-Control-Allow-Origin response header indicates whether the response can be shared with requesting code from the given origin.",
+        "references": ["https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Origin"]
+    },
+    {
+        "header": "Client-IP",
+        "description": "",
+        "references": [""]
+    },
+    {
+        "header": "Forwarded",
+        "description": "",
+        "references": [""]
+    },
+    {
+        "header": "Forwarded-For",
+        "description": "",
+        "references": [""]
+    },
+    {
+        "header": "Forwarded-For-IP",
+        "description": "",
+        "references": [""]
+    },
+    {
+        "header": "Origin",
+        "description": "",
+        "references": [""]
+    },
+    {
+        "header": "X-Client-IP",
+        "description": "",
+        "references": [""]
+    },
+    {
+        "header": "X-Forwarded",
+        "description": "",
+        "references": [""]
+    },
+    {
+        "header": "X-Forwarded-By",
+        "description": "",
+        "references": [""]
+    },
+    {
+        "header": "X-Forwarded-For",
+        "description": "The X-Forwarded-For (XFF) request header is a de-facto standard header for identifying the originating IP address of a client connecting to a web server through a proxy server.",
+        "references": ["https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-For"]
+    },
+    {
+        "header": "X-Forwarded-For-Original",
+        "description": "",
+        "references": [""]
+    },
+    {
+        "header": "X-Forwarded-Host",
+        "description": "",
+        "references": [""]
+    },
+    {
+        "header": "X-Forwarder-For",
+        "description": "",
+        "references": [""]
+    },
+    {
+        "header": "X-Originating-IP",
+        "description": "",
+        "references": [""]
+    },
+    {
+        "header": "X-Remote-Addr",
+        "description": "",
+        "references": [""]
+    },
+    {
+        "header": "X-Remote-IP",
+        "description": "",
+        "references": [""]
+    },
+    {
+        "header": "CF-Connecting-Ip",
+        "description": "",
+        "references": [""]
+    },
+    {
+        "header": "X-Real-IP",
+        "description": "",
+        "references": [""]
+    },
+    {
+        "header": "True-Client-IP",
+        "description": "",
+        "references": ["https://docs.aws.amazon.com/en_us/AmazonCloudFront/latest/DeveloperGuide/example-function-add-true-client-ip-header.html"]
+    }
 ]
 
 
@@ -110,19 +201,13 @@ def print_results(console, results, curl=False):
 
 
 def parseArgs():
-    description = "This Python script can be used to test for IP source bypass using HTTP headers"
-    parser = argparse.ArgumentParser(
-        description=description,
-        formatter_class=argparse.RawTextHelpFormatter,
-    )
-    parser.add_argument(
-        "url",
-        help="e.g. https://example.com:port/path"
-    )
+    print("FindUncommonShares v%s - by @podalirius_\n" % VERSION)
+    parser = argparse.ArgumentParser(description="This Python script can be used to test for IP source bypass using HTTP headers")
+    parser.add_argument("url", help="e.g. https://example.com:port/path")
     parser.add_argument("-v", "--verbose", default=None, action="store_true", help='arg1 help message')
     parser.add_argument("-i", "--ip", dest="ip", required=True, help="IP to spoof.")
     parser.add_argument("-t", "--threads", dest="threads", action="store", type=int, default=5, required=False, help="Number of threads (default: 5)")
-    parser.add_argument('-x', '--proxy', action="store", default=None, dest='proxy', help="Specify a proxy to use for requests (e.g., http://localhost:8080)")
+    parser.add_argument("-x", "--proxy", action="store", default=None, dest='proxy', help="Specify a proxy to use for requests (e.g., http://localhost:8080)")
     parser.add_argument("-k", "--insecure", dest="verify", action="store_false", default=True, required=False, help="Allow insecure server connections when using SSL (default: False)")
     parser.add_argument("-L", "--location", dest="redirect", action="store_true", default=False, required=False, help="Follow redirects (default: False)")
     parser.add_argument("-j", "--jsonfile", dest="jsonfile", default=None, required=False, help="Save results to specified JSON file.")
@@ -166,11 +251,11 @@ if __name__ == '__main__':
                 pass
 
         results = {}
-        test_bypass(options, proxies, results, "bph", options.ip)
+
         # Waits for all the threads to be completed
         with ThreadPoolExecutor(max_workers=min(options.threads, len(BYPASS_HEADERS))) as tp:
-            for bph in BYPASS_HEADERS:
-                tp.submit(test_bypass, options, proxies, results, bph, options.ip)
+            for bph in sorted(BYPASS_HEADERS, key=lambda x:x["header"]):
+                tp.submit(test_bypass, options, proxies, results, bph["header"], options.ip)
 
         # Sorting the results by method name
         results = {key: results[key] for key in sorted(results, key=lambda key: results[key]["length"])}
