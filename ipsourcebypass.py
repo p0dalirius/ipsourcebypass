@@ -201,7 +201,7 @@ def print_results(console, results, curl=False):
 
 
 def parseArgs():
-    print("FindUncommonShares v%s - by @podalirius_\n" % VERSION)
+    print("IPSourceBypass v%s - by @podalirius_\n" % VERSION)
     parser = argparse.ArgumentParser(description="This Python script can be used to test for IP source bypass using HTTP headers")
     parser.add_argument("url", help="e.g. https://example.com:port/path")
     parser.add_argument("-v", "--verbose", default=None, action="store_true", help='arg1 help message')
