@@ -218,7 +218,6 @@ def parseArgs():
 
 
 if __name__ == '__main__':
-    print(banner)
 
     options = parseArgs()
     try:
