@@ -111,6 +111,16 @@ BYPASS_HEADERS = [
         "header": "True-Client-IP",
         "description": "",
         "references": ["https://docs.aws.amazon.com/en_us/AmazonCloudFront/latest/DeveloperGuide/example-function-add-true-client-ip-header.html"]
+    },
+    {
+        "header": "WL-Proxy-Client-IP",
+        "description": "WebLogic Proxy Header",
+        "references":["https://www.ateam-oracle.com/post/understanding-the-use-of-weblogic-plugin-enabled"]
+    },
+    {
+        "header":"Proxy-Client-IP",
+        "description": "No reference now, just very used",
+        "references":[""]
     }
 ]
 
@@ -214,6 +224,7 @@ def parseArgs():
     parser.add_argument("-C", "--curl", dest="curl", default=False, required=False, action="store_true", help="Generate curl commands for each request.")
     parser.add_argument("-H", "--header", dest="headers", action="append", default=[], help='arg1 help message')
     parser.add_argument("-S", "--save", dest="save", default=False, required=False, action="store_true", help="Save all HTML responses.")
+    parser.add_argument("-c", "--case", dest="case", action='store_true', default=False, required=False, help="Alternate Upper and Lower case (Case can matter with certains web servers)")
     return parser.parse_args()
 
 
@@ -254,7 +265,11 @@ if __name__ == '__main__':
         # Waits for all the threads to be completed
         with ThreadPoolExecutor(max_workers=min(options.threads, len(BYPASS_HEADERS))) as tp:
             for bph in sorted(BYPASS_HEADERS, key=lambda x:x["header"]):
-                tp.submit(test_bypass, options, proxies, results, bph["header"], options.ip)
+                if options.case:
+                    tp.submit(test_bypass, options, proxies, results, bph["header"].upper(), options.ip)
+                    tp.submit(test_bypass, options, proxies, results, bph["header"].lower(), options.ip)
+                else:
+                    tp.submit(test_bypass, options, proxies, results, bph["header"], options.ip)
 
         # Sorting the results by method name
         results = {key: results[key] for key in sorted(results, key=lambda key: results[key]["length"])}
