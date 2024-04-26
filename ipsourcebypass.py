@@ -224,7 +224,7 @@ def parseArgs():
     parser.add_argument("-C", "--curl", dest="curl", default=False, required=False, action="store_true", help="Generate curl commands for each request.")
     parser.add_argument("-H", "--header", dest="headers", action="append", default=[], help='arg1 help message')
     parser.add_argument("-S", "--save", dest="save", default=False, required=False, action="store_true", help="Save all HTML responses.")
-    parser.add_argument("-c", "--case", dest="case", default=False, required=False, help="Alternate Upper and Lower case (Case can matter with certains web servers)")
+    parser.add_argument("-c", "--case", dest="case", action='store_true', default=False, required=False, help="Alternate Upper and Lower case (Case can matter with certains web servers)")
     return parser.parse_args()
 
 
