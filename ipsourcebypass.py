@@ -111,6 +111,16 @@ BYPASS_HEADERS = [
         "header": "True-Client-IP",
         "description": "",
         "references": ["https://docs.aws.amazon.com/en_us/AmazonCloudFront/latest/DeveloperGuide/example-function-add-true-client-ip-header.html"]
+    },
+    {
+        "header": "WL-Proxy-Client-IP",
+        "description": "WebLogic Proxy Header",
+        "references":["https://www.ateam-oracle.com/post/understanding-the-use-of-weblogic-plugin-enabled"]
+    },
+    {
+        "header":"Proxy-Client-IP",
+        "description": "No reference now, just very used",
+        "references":[""]
     }
 ]
 
