@@ -38,6 +38,11 @@ BYPASS_HEADERS = [
         "references": [""]
     },
     {
+        "header": "X-Ruxit-Forwarded-For",
+        "description": "",
+        "references": [""]
+    },
+    {
         "header": "Forwarded-For-IP",
         "description": "",
         "references": [""]
